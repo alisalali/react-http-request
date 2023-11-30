@@ -13,21 +13,34 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://swapi.dev/api/films/");
+      const response = await fetch(
+        "https://tsts-15dc1-default-rtdb.asia-southeast1.firebasedatabase.app/movies.json"
+        // "https://swapi.dev/api/films/"
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch " + response.status);
       }
       const data = await response.json();
-      const transformMovies = await data.results.map((movieData) => {
-        return {
-          id: movieData.episode_id,
-          title: movieData.title,
-          openingText: movieData.opening_crawl,
-          releaseDate: movieData.release_date,
-        };
-      });
-      setMovieList(transformMovies);
+      const loadedMovies = [];
+      for (const key in data) {
+        loadedMovies.push({
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].releaseDate,
+        });
+      }
+      // const transformMovies = await loadedMovies.map((movieData) => {
+      //   return {
+      //     id: movieData.episode_id,
+      //     title: movieData.title,
+      //     openingText: movieData.opening_crawl,
+      //     releaseDate: movieData.release_date,
+      //   };
+      // });
+
+      setMovieList(loadedMovies);
     } catch (err) {
       setError(err.message);
       console.log(error);
@@ -38,8 +51,18 @@ function App() {
   useEffect(() => {
     fetchMovieHandler();
   }, [fetchMovieHandler]);
-  function addMovieHandler(movie) {
+  async function addMovieHandler(movie) {
     console.log(movie);
+    await fetch(
+      "https://tsts-15dc1-default-rtdb.asia-southeast1.firebasedatabase.app/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(movie),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
   let content = <p>Found no Movies</p>;
 
